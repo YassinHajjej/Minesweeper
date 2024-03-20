@@ -1,4 +1,19 @@
+
 /*----- constants -----*/
+const Tile = {
+    create(row, col){
+        return {
+            Mine: false,
+            Revealed: false,
+            Flagged: false,
+            floodNumber: 0,
+            row: row,
+            col: col
+        };
+    }
+}
+
+
 const Colors = {
     1: "blue",
     2: "green",
@@ -15,22 +30,23 @@ const cols = 8;
 
 /*----- state variables -----*/
 let board; // array of 8 col array
-let bombCount = 10
+let bombCount = 10;
+let bombsLeft = 10;
 let flagCount = 0;
 let winner = null;
 
 /*----- cached elements  -----*/
 let bombEl = document.getElementById("bomb-Count")
 let boardEl = document.getElementById("board")
-let restartBtn = document.querySelector(".restart")
-let flagButton = document.querySelector(".FlagPlaced")
-let messageEl = document.getElementById("message")
+let restartBtn = document.getElementById("restartBtn")
+let messageEl = document.getElementById("message");
+
 
 /*----- event listeners -----*/
-boardEl.addEventListener('click', handleClick);
-boardEl.addEventListener('click',  init);
-flagButton.addEventListener('click', toggleFlagPlacementMode);
 
+boardEl.addEventListener('click', handleClick);
+boardEl.addEventListener('contextmenu', handleRightClick)
+restartBtn.addEventListener("click", init);
 
 
 
@@ -40,8 +56,8 @@ init();
 
 //initialize all state, the call render()
 function init() {
-    
-
+    bombCount = 10;
+    flagCount = 0;
     board = [
         [null, null, null, null, null, null, null, null], // coll 0 
         [null, null, null, null, null, null, null, null], // coll 1 
@@ -58,10 +74,10 @@ function init() {
             // Iterate over each column of the current row
     
             // Create a new Tile object at the current position (r, c)
-            board[r][c] = new Tile(r, c);
+            board[r][c] = Tile.create(r, c);
     
             // Set initial properties for the tile
-            board[r][c].isFlagged = false;
+            board[r][c].Flagged = false;
     
             // Set background color and clear any existing text in the tile element
             document.getElementById(`${r}-${c}`).style.backgroundColor = "lightSteelBlue";
@@ -77,98 +93,11 @@ function init() {
             document.getElementById("message").innerHTML = "Good Luck";
         }
     }
-}
-// Visualize all state in the DOM 
-function render() {
-    renderBoard();
-    renderMessage();
-    renderControls();
-}
-
-
-function renderBoard() {
-    board.forEach(function(rowArr, rowIdx) {
-        rowArr.forEach(function (tile, colIdx) {
-            const tileId = `${rowIdx}-${colIdx}`
-            const tileEl = document.getElementById(tileId)
-            if (tile.isFlagged) {
-                tileEl.innerText = " 🚩"
-            }
-            if (tile.isRevealed && tile.innerNumber === 0) {
-                tileEl.style.backgroundColor = "lightgray"
-            }
-            if (tile.isRevealed && tile.innerNumber > 0) {
-                let innerNumberTile = tile.innerNumber
-                textColor[innerNumberTile]
-                tileEl.innerText = tile.innerNumber;
-                tileEl.style.color = Colors[innerNumberTile]
-                tileEl.style.backgroundColor = "lightgrey"
-                document.getElementById("flag-placed").innerText = flagCount
-            }
-
-        })
-
-    });
-
-}
-function renderMessage() {
-    if (winner === "L") {
-        messageEl.innerText = "Game Over 💣💥"  
-    } else if (winner === "W") { 
-        messageEl.innerText = "You win !"
-    }
-
-}
-function renderControls() {
-    restartBtn.style.visibility = winner ? "visible" : "hidden"; 
-}
-
-function handleClick(evt) {
-    // Get the current tile based on the clicked event
-    let currentTile = board[evt.target.id[0]][evt.target.id[2]];
-    // Exit if the game is already won or lost 
-    if (winner === "L" || winner === "W") return; 
-    //Exit if the tile is flagged
-    if (currentTile.isFlagged) {
-        return;
-    }
-    //if the tile is not a mine has not adjacent mines,
-    //reveal connected tiles
-    if (!currentTile.isMine && currentTile.innerNumber === 0) {
-        calculateFloodNumbers(currentTile.row, currentTile.col);
-    }
-    //if the tile is not a mine and has adjacent mines,
-    //reveal the tile 
-    if (!currentTile.isMine > 0) {
-        currentTile.isRevealed = true;
-    }
-    //if the tile is a mine and not flagged, 
-    //the player loses 
-    if (currentTile.isMine) {
-        winner = checkWinner(currentTile);
-        //Reveal all mines on the board
-        board.forEach(function (rowArr, rowIdx) {
-            rowArr.foorEach(function (tile,colIdx) {
-                const tileId = `${rowIdx}-${colIdx}`;
-                const tileEl = document.getElementById(tileId);
-                if (tile.isMine) {
-                    tileEl.innerHTML = "💣"
-                }
-
-            });
-        });
-    }
-    //update the flag count displayed on the page 
-    document.getElementById("flag-placed").innerText = flagCount;
-    //render the updted game board 
+    generateBombs();
+    generateFlood();
     render();
 }
-function toggleFlagPlacementMode() {
-    if (winner !== "L" && winner !== "W") { //Toggle flag placeement mode only if is not already won or lost
-        flagButton.classList.toggle("active"); //toggle the active state of the flag button.
 
-    }
-}
 function generateBombs() {
     // Iterate until the desired number of bombs is placed on the board
     while (bombCount > 0) {
@@ -176,21 +105,191 @@ function generateBombs() {
         let randomRow = Math.floor(Math.random() * rows);
         let randomCol = Math.floor(Math.random() * cols);
         // Check if the selected cell does not already contain a bomb
-        if (board[randomRow][randomCol].isMine === false) {
+        if (board[randomRow][randomCol].Mine === false) {
             // Place a bomb in the selected cell and decrement bombCount
-            board[randomRow][randomCol].isMine = true;
+            board[randomRow][randomCol].Mine = true;
             bombCount--;
         }
     }
 }
-
-
-
-
-    
-        
+function generateFlood() {
+    board.forEach(function (rowArr, rowIdx) {
+        rowArr.forEach(function (tile, colIdx){
+            //reset flood number for each tile
+            tile.floodNumber = 0;
+            //calculate flood number by checking adjecent tiles for mines
+            tile.floodNumber += checkAdjTile(rowIdx - 1, colIdx - 1);
+            tile.floodNumber += checkAdjTile(rowIdx - 1, colIdx);
+            tile.floodNumber += checkAdjTile(rowIdx - 1, colIdx + 1);
+            tile.floodNumber += checkAdjTile(rowIdx, colIdx - 1);
+            tile.floodNumber += checkAdjTile(rowIdx, colIdx + 1);
+            tile.floodNumber += checkAdjTile(rowIdx + 1, colIdx - 1);
+            tile.floodNumber += checkAdjTile(rowIdx + 1, colIdx);
+            tile.floodNumber += checkAdjTile(rowIdx + 1, colIdx + 1);
+        })
+    });
+}
 function checkAdjTile(rowIdx, colIdx) {
     if (rowIdx < 0 || colIdx < 0 || rowIdx > board.length - 1 || colIdx > board.length - 1) return 0
-    if (board[rowIdx][colIdx].isMine) return 1
+    if (board[rowIdx][colIdx].Mine) return 1
     return 0;
 }
+// Visualize all state in the DOM 
+function render() {
+    renderBoard();
+    renderMessage();
+    renderControls();
+}
+        
+    
+function renderBoard() {
+    // Render each tile on the game board
+    board.forEach(function(rowArr, rowIdx) {
+        rowArr.forEach(function (tile, colIdx) {
+            const tileId = `${rowIdx}-${colIdx}`
+            const tileEl = document.getElementById(tileId)
+            if (tile.Flagged) {
+                tileEl.innerText = " 🚩"
+            }
+            if (tile.Revealed && tile.floodNumber === 0) {
+                tileEl.style.backgroundColor = "lightgray"
+            }
+            if (tile.Revealed && tile.floodNumber > 0) {
+                let innerNumberTile = tile.floodNumber
+                tileEl.innerText = tile.floodNumber;
+                tileEl.style.color = Colors[innerNumberTile]
+                tileEl.style.backgroundColor = "lightgrey"
+                document.getElementById("flag-placed").innerText = flagCount
+            }
+        })
+    });
+}
+
+function handleClick(evt) {
+    // Handle click events on the game board
+    let currentTile = board[evt.target.id[0]][evt.target.id[2]];
+    if (winner === "L" || winner === "W") return; 
+    if (currentTile.Flagged) {
+        return;
+    }
+    if (!currentTile.Mine && currentTile.floodNumber === 0) {
+        floodFeature(currentTile.row, currentTile.col);
+    }
+    if (!currentTile.Mine && currentTile.floodNumber > 0) {
+        currentTile.Revealed = true;
+    }
+    if (currentTile.Mine) {
+        winner = checkWinner(currentTile);
+        // Reveal all mines on the board
+        board.forEach(function (rowArr, rowIdx) {
+            rowArr.forEach(function (tile,colIdx) {
+                const tileId = `${rowIdx}-${colIdx}`;
+                const tileEl = document.getElementById(tileId);
+                if (tile.Mine) {
+                    tileEl.innerHTML = "💣"
+                }
+            });
+        });
+        //remove event listeners after a bomb is clicked
+        boardEl.removeEventListener("click", handleClick);
+        boardEl.removeEventListener("contextmenu", handleRightClick);
+    }
+    // Update flag count displayed on the page 
+    document.getElementById("flag-placed").innerText = flagCount;
+    // Render the updated game board 
+    render();
+}
+
+function handleRightClick(evt) {
+    evt.preventDefault(); // Prevent default right-click behavior (e.g., showing context menu)
+
+    // Retrieve the current tile and its corresponding DOM element
+    let currTile = board[evt.target.id[0]][evt.target.id[2]];
+
+    // Check if the tile is already revealed
+    if (currTile.Revealed) {
+        return; // Ignore right-clicks on revealed tiles
+    }
+
+    // Toggle flag status of the current tile
+    currTile.Flagged = !currTile.Flagged;
+
+    // Adjust flag count and bombs left count based on flag status
+    flagCount += currTile.Flagged ? 1 : -1;
+    bombsLeft -= currTile.Flagged ? 1 : -1;
+
+    // Check for win condition
+    if (flagCount === bombCount && bombsLeft === 0) {
+        winner = checkWinner(currTile);
+    }
+
+    // Update flag count displayed on the page
+    document.getElementById("flag-placed").innerText = flagCount;
+
+    // Render the updated game board
+    render();
+}
+function renderControls() {
+    restartBtn.style.visibility =  "visible"; 
+}
+
+function renderMessage() {
+    // render message based on gamer outcome
+    if (winner === "L") {
+        messageEl.innerText = "Game Over 💣💥"  
+    } else if (winner === "W") { 
+        messageEl.innerText = "You win !"
+    }
+}
+function floodFeature(row, col) {
+    // Base case: return if the current position is out of bounds
+    if (row < 0 || row >= board.length || col < 0 || col >= board[row].length) {
+        return;
+    }
+
+    // Check if the current tile has a non-zero flood number
+    if (board[row][col].floodNumber > 0) {
+        // If so, reveal the tile and return
+        board[row][col].Revealed = true;
+        return;
+    }
+
+    // Check if the current tile has a flood number of 0 and is not already revealed
+    if (board[row][col].floodNumber === 0 && !board[row][col].Revealed) {
+        // If so, reveal the tile
+        board[row][col].Revealed = true;
+
+        // Recursively call floodFeature on adjacent tiles
+        floodFeature(row - 1, col - 1);
+        floodFeature(row - 1, col);
+        floodFeature(row - 1, col + 1);
+        floodFeature(row, col - 1);
+        floodFeature(row, col + 1);
+        floodFeature(row + 1, col - 1);
+        floodFeature(row + 1, col);
+        floodFeature(row + 1, col + 1);
+    }
+}
+function checkWinner(currTile) {
+    // Check if the current tile is revealed and is a mine (player loses)
+    if (currTile.Revealed && currTile.Mine) {
+        return "L";
+    }
+
+    // Check if there are unflagged mines remaining and the player hasn't lost yet
+    if (bombCount !== 0 && flagCount !== bombCount) {
+        return null; // Game continues
+    }
+
+    // Check if all mines are flagged and there are no unflagged tiles left (player wins)
+    if (flagCount === bombCount && flagCount === 15) {
+        return "W";
+    }
+
+    return null; // Game continues
+}
+
+
+
+
+      
