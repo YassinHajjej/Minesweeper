@@ -2,6 +2,13 @@ body {
     font-family: Arial, Arial, Helvetica, sans-serif;
     font-weight: bold;
     text-align: center;
+    
+    margin: 0;
+    padding: 0;
+    background-image: url('background.jpeg');
+    background-size: cover;
+    background-position: center;
+    height: 100vh;
 }
 
 
@@ -28,7 +35,7 @@ body {
     grid-template-rows: repeat(8, 1fr);
 }
 #board div {
-    border: 1px solid whitesmoke;
+    border: 1px solid blue;
     font-size: 30px;
     display: flex;
     justify-content: center;
@@ -42,6 +49,7 @@ body {
 }
 .title {
     display: flex;
+    color: #bf00ff;
     justify-content: center;
     margin: 10px;
     font-size: 40px;
@@ -55,11 +63,15 @@ body {
     margin-bottom: 20px;
 }
 
-.restart,
-.Flag {
+
+.FlagPlaced {
     font-size: 20px;
+    color: #bf00ff;
 }
 .flagPlaced.active {
     background-color: #555;
     color: #fff;
+}
+#message {
+    color:#bf00ff;
 }

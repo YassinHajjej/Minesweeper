@@ -27,6 +27,7 @@ const Colors = {
 const rows = 8;
 const cols = 8;
 
+const gameOverSound = document.getElementById("gameOverSound");
 
 /*----- state variables -----*/
 let board; // array of 8 col array
@@ -80,7 +81,7 @@ function init() {
             board[r][c].Flagged = false;
     
             // Set background color and clear any existing text in the tile element
-            document.getElementById(`${r}-${c}`).style.backgroundColor = "lightSteelBlue";
+            document.getElementById(`${r}-${c}`).style.backgroundColor = "#CBC3E3";
             document.getElementById(`${r}-${c}`).innerText = "";
     
             // Reset game state variables
@@ -90,7 +91,7 @@ function init() {
     
             // Update flag count and message displayed on the page
             document.getElementById("flag-placed").innerText = flagCount;
-            document.getElementById("message").innerHTML = "Good Luck";
+            document.getElementById("message").innerHTML = "Good Luck";//messageEl(); 
         }
     }
     generateBombs();
@@ -237,6 +238,7 @@ function renderMessage() {
     // render message based on gamer outcome
     if (winner === "L") {
         messageEl.innerText = "Game Over 💣💥"  
+        gameOverSound.onplay();
     } else if (winner === "W") { 
         messageEl.innerText = "You win !"
     }
@@ -246,14 +248,12 @@ function floodFeature(row, col) {
     if (row < 0 || row >= board.length || col < 0 || col >= board[row].length) {
         return;
     }
-
     // Check if the current tile has a non-zero flood number
     if (board[row][col].floodNumber > 0) {
         // If so, reveal the tile and return
         board[row][col].Revealed = true;
         return;
     }
-
     // Check if the current tile has a flood number of 0 and is not already revealed
     if (board[row][col].floodNumber === 0 && !board[row][col].Revealed) {
         // If so, reveal the tile
@@ -275,17 +275,14 @@ function checkWinner(currTile) {
     if (currTile.Revealed && currTile.Mine) {
         return "L";
     }
-
     // Check if there are unflagged mines remaining and the player hasn't lost yet
     if (bombCount !== 0 && flagCount !== bombCount) {
         return null; // Game continues
     }
-
     // Check if all mines are flagged and there are no unflagged tiles left (player wins)
-    if (flagCount === bombCount && flagCount === 15) {
+    if (flagCount === bombCount && flagCount === 10) {
         return "W";
     }
-
     return null; // Game continues
 }
 
