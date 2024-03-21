@@ -1,4 +1,4 @@
-# <MinesweeperGame>
+# Minesweeper Game
 
 Mine Sweeper is a classic puzzle game where players navigate a minefield, uncovering safe squares while avoiding hidden mines. Originating in the late 1960s, it gained popularity on personal computers in the 1990s. Players rely on numerical clues to deduce mine locations, blending skill with chance. Its simplicity makes it accessible to all ages, serving as both entertainment and a teaching tool for logical reasoning. With its enduring appeal and addictive gameplay, Mine Sweeper remains a beloved classic across various platforms, offering a timeless challenge to players worldwide.
 Mine: 💣
@@ -26,4 +26,4 @@ Flag: 🚩
 # Next Steps
 
 - Future enhancement: Adding new sound. 
-- Future enhancement adding dynamic backgrounds, visually engaging effects.
+- Future enhancement: Adding dynamic backgrounds, visually engaging effects.
