@@ -92,6 +92,10 @@ function init() {
             // Update flag count and message displayed on the page
             document.getElementById("flag-placed").innerText = flagCount;
             document.getElementById("message").innerHTML = "Good Luck";
+
+            // Add event listeners back after resetting the game
+            boardEl.addEventListener('click', handleClick);
+            boardEl.addEventListener('contextmenu', handleRightClick);
         }
     }
     generateBombs();
@@ -272,21 +276,7 @@ function floodFeature(row, col) {
         floodFeature(row + 1, col + 1);
     }
 }
-// function checkWinner(currTile) {
-//     //Check if the current tile is revealed and is a mine (player loses)
-//     if (currTile.Revealed && currTile.Mine) {
-//         return "L";
-//     }
-//     // Check if there are unflagged mines remaining and the player hasn't lost yet
-//     if (bombCount !== 0 && flagCount !== bombCount) {
-//         return null; // Game continues
-//     }
-//     // Check if all mines are flagged and there are no unflagged tiles left (player wins)
-//     if (flagCount === bombCount && flagCount === 10) {
-//         return "W";
-//     }
-//     return null; // Game continues
-// }
+
 function checkWinner() {
     // Check for loss conditions
     for (let r = 0; r < board.length; r++) {
