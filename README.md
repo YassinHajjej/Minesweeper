@@ -7,9 +7,9 @@ Flag: 🚩
 
 # Screenshot
 
-<img src="/Users/yassinhajjej/code/minesweeper/images/Screenshot 2024-03-20 at 3.52.55 PM.png">
-<img src="/Users/yassinhajjej/code/minesweeper/images/Screenshot 2024-03-20 at 3.53.46 PM.png">
-<img src="url to your image on imgur">
+<img src="images/Screenshot 2024-03-20 at 3.52.55 PM.png">
+<img src="images/Screenshot 2024-03-20 at 3.53.46 PM.png">
+<img src="images/Screenshot 2024-03-20 at 3.55.01 PM.png">
 
 # Technologies Used
 
