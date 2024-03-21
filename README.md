@@ -20,7 +20,6 @@ Flag: 🚩
 
 # Getting Started
 
-[Click to View Project Planning](your Trello url here)
 [Click to Play Minesweeper](https://yassinhajjej.github.io/Minesweeper/)
 
 # Next Steps
