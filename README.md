@@ -1,4 +1,4 @@
-# <Minesweeper Game>
+# <MinesweeperGame>
 
 Mine Sweeper is a classic puzzle game where players navigate a minefield, uncovering safe squares while avoiding hidden mines. Originating in the late 1960s, it gained popularity on personal computers in the 1990s. Players rely on numerical clues to deduce mine locations, blending skill with chance. Its simplicity makes it accessible to all ages, serving as both entertainment and a teaching tool for logical reasoning. With its enduring appeal and addictive gameplay, Mine Sweeper remains a beloved classic across various platforms, offering a timeless challenge to players worldwide.
 Mine: 💣
@@ -21,9 +21,9 @@ Flag: 🚩
 # Getting Started
 
 [Click to View Project Planning](your Trello url here)
-[Click to Play Connect Four!](your deployment url here)
+[Click to Play Minesweeper](https://yassinhajjej.github.io/Minesweeper/)
 
 # Next Steps
 
-- Future enhancement one...
-- Future enhancement two... 
+- Future enhancement: Adding new sound. 
+- Future enhancement adding dynamic backgrounds, visually engaging effects.
