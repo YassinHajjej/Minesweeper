@@ -91,7 +91,7 @@ function init() {
     
             // Update flag count and message displayed on the page
             document.getElementById("flag-placed").innerText = flagCount;
-            document.getElementById("message").innerHTML = "Good Luck";//messageEl(); 
+            document.getElementById("message").innerHTML = "Good Luck";
         }
     }
     generateBombs();
@@ -238,11 +238,13 @@ function renderMessage() {
     // render message based on gamer outcome
     if (winner === "L") {
         messageEl.innerText = "Game Over 💣💥"  
-        gameOverSound.onplay();
+        gameOverSound.play();
     } else if (winner === "W") { 
         messageEl.innerText = "You win !"
     }
+
 }
+
 function floodFeature(row, col) {
     // Base case: return if the current position is out of bounds
     if (row < 0 || row >= board.length || col < 0 || col >= board[row].length) {
@@ -270,23 +272,42 @@ function floodFeature(row, col) {
         floodFeature(row + 1, col + 1);
     }
 }
-function checkWinner(currTile) {
-    // Check if the current tile is revealed and is a mine (player loses)
-    if (currTile.Revealed && currTile.Mine) {
-        return "L";
+// function checkWinner(currTile) {
+//     //Check if the current tile is revealed and is a mine (player loses)
+//     if (currTile.Revealed && currTile.Mine) {
+//         return "L";
+//     }
+//     // Check if there are unflagged mines remaining and the player hasn't lost yet
+//     if (bombCount !== 0 && flagCount !== bombCount) {
+//         return null; // Game continues
+//     }
+//     // Check if all mines are flagged and there are no unflagged tiles left (player wins)
+//     if (flagCount === bombCount && flagCount === 10) {
+//         return "W";
+//     }
+//     return null; // Game continues
+// }
+function checkWinner() {
+    // Check for loss conditions
+    for (let r = 0; r < board.length; r++) {
+        for (let c = 0; c < board[r].length; c++) {
+            const currentTile = board[r][c];
+            if (!currentTile.Flagged && currentTile.Mine) {
+                return "L"; // Player loses if an unflagged mine is revealed
+            }
+            if (currentTile.Mine && flagCount !== bombCount && bombCount !== 0) {
+                return "L"; // Player loses if a mine is revealed before all flags are placed
+            }
+        }
     }
-    // Check if there are unflagged mines remaining and the player hasn't lost yet
-    if (bombCount !== 0 && flagCount !== bombCount) {
-        return null; // Game continues
+
+    // Check for win condition
+    if (flagCount === bombCount && bombsLeft === 0) {
+        return "W"; // Player wins if all mines are correctly flagged
     }
-    // Check if all mines are flagged and there are no unflagged tiles left (player wins)
-    if (flagCount === bombCount && flagCount === 10) {
-        return "W";
-    }
+
     return null; // Game continues
 }
-
-
 
 
       
