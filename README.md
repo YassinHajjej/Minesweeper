@@ -16,7 +16,7 @@ Flag: 🚩
 - JavaScript
 - HTML
 - CSS
-- CardStarter CSS Library
+
 
 # Getting Started
 
